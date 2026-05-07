@@ -1,0 +1,750 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль — ПрактикаДок</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --bg:#0d1117;--surface:#161b22;--border:#21262d;
+            --accent:#2f81f7;--accent2:#3fb950;--accent3:#d29922;
+            --text:#e6edf3;--muted:#8b949e;--card:#1c2128;
+            --input:#0d1117;--err:#f85149;--danger:#da3633;
+        }
+        body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+        /* ── Шапка ── */
+        .header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100}
+        .logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+        .logo-icon{width:32px;height:32px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px}
+        .logo-name{font-size:17px;font-weight:800;letter-spacing:-.4px}
+        .logo-name span{color:var(--accent)}
+        .header-right{display:flex;align-items:center;gap:16px}
+        .user-chip{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:5px 14px 5px 8px;font-size:13px;display:flex;align-items:center;gap:8px;color:var(--muted)}
+        .user-chip strong{color:var(--text)}
+        .avatar{width:26px;height:26px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+        .btn-logout{background:transparent;border:1px solid var(--border);border-radius:8px;padding:6px 14px;color:var(--muted);font-family:'Manrope',sans-serif;font-size:13px;cursor:pointer;text-decoration:none;transition:all .15s}
+        .btn-logout:hover{border-color:var(--danger);color:var(--danger)}
+
+        /* ── Основной контент ── */
+        .main{max-width:1100px;margin:0 auto;padding:32px 24px}
+
+        /* ── Сообщения ── */
+        .alert{border-radius:8px;padding:12px 16px;font-size:13px;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+        .alert-success{background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.3);color:var(--accent2)}
+        .alert-error{background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);color:var(--err)}
+
+        /* ── Табы ── */
+        .tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:6px;margin-bottom:28px;overflow-x:auto;flex-wrap:nowrap}
+        .tab{padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);font-family:'Manrope',sans-serif;white-space:nowrap;transition:all .15s}
+        .tab:hover{color:var(--text);background:var(--card)}
+        .tab.active{background:var(--card);color:var(--text);border:1px solid var(--border)}
+        .tab-pane{display:none}
+        .tab-pane.active{display:block}
+
+        /* ── Карточки ── */
+        .card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:20px;overflow:hidden}
+        .card-head{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+        .card-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+        .card-body{padding:24px}
+
+        /* ── Форма ── */
+        .section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:0 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+        .form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:16px}
+        .form-row-3{grid-template-columns:repeat(3,1fr)}
+        .form-group{display:flex;flex-direction:column;gap:6px}
+        .form-group.full{grid-column:1/-1}
+        label.field-label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.3px;text-transform:uppercase}
+        input[type=text],input[type=date],input[type=number],input[type=email],input[type=tel],select,textarea{
+            background:var(--input);border:1px solid var(--border);border-radius:8px;
+            color:var(--text);font-family:'Manrope',sans-serif;font-size:14px;
+            padding:10px 12px;outline:none;transition:border-color .15s;width:100%
+        }
+        input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+        select option{background:var(--card)}
+        textarea{resize:vertical;min-height:80px}
+        .form-spacer{height:20px}
+
+        /* ── Кнопки ── */
+        .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;font-family:'Manrope',sans-serif;cursor:pointer;border:none;text-decoration:none;transition:all .15s;white-space:nowrap}
+        .btn-primary{background:var(--accent);color:#fff}
+        .btn-primary:hover{background:#388bfd}
+        .btn-success{background:var(--accent2);color:#000}
+        .btn-success:hover{background:#46c75b}
+        .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+        .btn-outline:hover{background:var(--surface)}
+        .btn-danger{background:transparent;color:var(--err);border:1px solid rgba(248,81,73,.3)}
+        .btn-danger:hover{background:rgba(248,81,73,.1)}
+        .btn-sm{padding:6px 12px;font-size:12px}
+        .btn-group{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+
+        /* ── Таблица компетенций ── */
+        .comp-table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+        .comp-table th{background:var(--surface);color:var(--muted);font-weight:600;padding:10px 12px;text-align:left;border:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+        .comp-table td{padding:10px 12px;border:1px solid var(--border);vertical-align:middle}
+        .comp-table tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+        .comp-table .num{color:var(--muted);text-align:center;width:36px}
+        .radio-group{display:flex;gap:6px}
+        .radio-chip input[type=radio]{display:none}
+        .radio-chip label{padding:4px 10px;border:1px solid var(--border);border-radius:20px;font-size:12px;cursor:pointer;transition:all .15s;display:inline-block;white-space:nowrap;color:var(--muted)}
+        .radio-chip input[type=radio]:checked + label{border-color:var(--accent);background:rgba(47,129,247,.15);color:var(--accent)}
+        .radio-chip.green input[type=radio]:checked + label{border-color:var(--accent2);background:rgba(63,185,80,.15);color:var(--accent2)}
+        .radio-chip.yellow input[type=radio]:checked + label{border-color:var(--accent3);background:rgba(210,153,34,.15);color:var(--accent3)}
+
+        /* ── Список документов ── */
+        .doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+        .doc-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;transition:border-color .15s}
+        .doc-card:hover{border-color:var(--accent)}
+        .doc-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:12px}
+        .badge-edu{background:rgba(47,129,247,.15);color:var(--accent);border:1px solid rgba(47,129,247,.3)}
+        .badge-prod{background:rgba(210,153,34,.15);color:var(--accent3);border:1px solid rgba(210,153,34,.3)}
+        .badge-char{background:rgba(63,185,80,.15);color:var(--accent2);border:1px solid rgba(63,185,80,.3)}
+        .doc-info{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+        .doc-info p{font-size:13px;color:var(--muted)}
+        .doc-info p strong{color:var(--text)}
+        .doc-actions{display:flex;gap:8px;flex-wrap:wrap}
+        .empty-state{text-align:center;padding:40px;color:var(--muted);font-size:14px}
+        .empty-icon{font-size:36px;margin-bottom:12px}
+
+        /* ── Разделитель секций ── */
+        .divider-section{height:1px;background:var(--border);margin:24px 0}
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="/" class="logo">
+            <div class="logo-icon">📄</div>
+            <div class="logo-name">Практика<span>Док</span></div>
+        </a>
+        <div class="header-right">
+            <div class="user-chip">
+                <div class="avatar">{{ user.username|first|upper }}</div>
+                <strong>{{ user.username }}</strong>
+            </div>
+            <a href="/logout/" class="btn-logout">Выйти</a>
+        </div>
+    </header>
+
+    <div class="main">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if 'успешно' in message|lower or 'сохран' in message|lower %}alert-success{% else %}alert-error{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Табы -->
+        <div class="tabs" id="tabs">
+            <button class="tab active" onclick="switchTab('profile-data', this)">👤 Мои данные</button>
+            <button class="tab" onclick="switchTab('attestat-up', this)">📝 Атт. лист — УП</button>
+            <button class="tab" onclick="switchTab('attestat-pp', this)">🏭 Атт. лист — ПП</button>
+            <button class="tab" onclick="switchTab('harakt', this)">📋 Характеристика</button>
+            <button class="tab" onclick="switchTab('my-docs', this)">📁 Мои документы</button>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             ТАБ 1: Мои данные
+        ═══════════════════════════════════════════════ -->
+        <div class="tab-pane active" id="tab-profile-data">
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title">👤 Личные данные</div>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="/profile/">
+                        {% csrf_token %}
+
+                        <div class="section-label">ФИО</div>
+                        <div class="form-row form-row-3">
+                            <div class="form-group">
+                                <label class="field-label">Фамилия</label>
+                                <input type="text" name="lastName" value="{{ profile.last_name }}" placeholder="Иванов">
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Имя</label>
+                                <input type="text" name="firstName" value="{{ profile.first_name }}" placeholder="Иван">
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Отчество</label>
+                                <input type="text" name="middleName" value="{{ profile.middle_name }}" placeholder="Иванович">
+                            </div>
+                        </div>
+
+                        <div class="divider-section"></div>
+                        <div class="section-label">Контакты</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="field-label">Телефон</label>
+                                <input type="tel" name="phone" value="{{ profile.phone }}" placeholder="+7 (___) ___-__-__">
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Email</label>
+                                <input type="email" name="email" value="{{ user.email }}" placeholder="example@mail.ru">
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Telegram</label>
+                                <input type="text" name="telegram" value="{{ profile.telegram }}" placeholder="@username">
+                            </div>
+                        </div>
+
+                        <div class="divider-section"></div>
+                        <div class="section-label">Дополнительно</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="field-label">Дата рождения</label>
+                                <input type="date" name="birthDate" value="{{ profile.birth_date|date:'Y-m-d' }}">
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Пол</label>
+                                <select name="gender">
+                                    <option value="">— выберите —</option>
+                                    <option value="M" {% if profile.gender == 'M' %}selected{% endif %}>Мужской</option>
+                                    <option value="F" {% if profile.gender == 'F' %}selected{% endif %}>Женский</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">ИНН</label>
+                                <input type="text" name="inn" value="{{ profile.inn }}" placeholder="000000000000">
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary">💾 Сохранить данные</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             ТАБ 2: Аттестационный лист — Учебная практика
+        ═══════════════════════════════════════════════ -->
+        <div class="tab-pane" id="tab-attestat-up">
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title">📝 Аттестационный лист — Учебная практика</div>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="/create-practice/">
+                        {% csrf_token %}
+                        <input type="hidden" name="practice_type" value="educational">
+
+                        <div class="section-label">Данные студента</div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label class="field-label">ФИО студента</label>
+                                <input type="text" name="fio" placeholder="Фамилия Имя Отчество" value="{{ profile.last_name }} {{ profile.first_name }} {{ profile.middle_name }}">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label class="field-label">Специальность</label>
+                                <input type="text" name="speciality" placeholder="Например: 09.02.07 Информационные системы и программирование">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="field-label">Группа</label>
+                                <input type="text" name="group" placeholder="ИС-21">
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Курс</label>
+                                <select name="course">
+                                    <option value="">—</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Форма обучения</label>
+                                <select name="education_form">
+                                    <option value="">—</option>
+                                    <option value="очная">Очная</option>
+                                    <option value="заочная">Заочная</option>
+                                    <option value="очно-заочная">Очно-заочная</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="divider-section"></div>
+                        <div class="section-label">Период практики</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="field-label">Дата начала</label>
+                                <input type="date" name="start_date">
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Дата окончания</label>
+                                <input type="date" name="end_date">
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Код ПМ / дисциплины</label>
+                                <input type="text" name="module_code" placeholder="ПМ.12 / МДК.12.01">
+                            </div>
+                        </div>
+
+                        <div class="divider-section"></div>
+                        <div class="section-label">Место прохождения практики</div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label class="field-label">Организация</label>
+                                <input type="text" name="organization" placeholder="ООО «Название компании» / Техникум">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label class="field-label">Адрес организации</label>
+                                <input type="text" name="organization_address" placeholder="г. Город, ул. Улица, д. 1, тел. +7...">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label class="field-label">Руководитель практики (ФИО, должность)</label>
+                                <input type="text" name="supervisor" placeholder="Иванов И.И., должность">
+                            </div>
+                        </div>
+
+                        <div class="divider-section"></div>
+                        <div class="section-label">1. Виды выполненных работ — Качество</div>
+                        <table class="comp-table">
+                            <thead>
+                                <tr>
+                                    <th class="num">№</th>
+                                    <th>Вид работы</th>
+                                    <th style="min-width:280px">Качество выполнения</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="num">1</td><td>Техническое сопровождение и восстановление веб-приложений</td><td>{% include "inc/work_radio.html" with n=1 prefix="up" %}</td></tr>
+                                <tr><td class="num">2</td><td>Размещение веб-приложения в сети</td><td>{% include "inc/work_radio.html" with n=2 prefix="up" %}</td></tr>
+                                <tr><td class="num">3</td><td>Резервное копирование ИР и управление доступом</td><td>{% include "inc/work_radio.html" with n=3 prefix="up" %}</td></tr>
+                                <tr><td class="num">4</td><td>Сбор статистики работы веб-приложений</td><td>{% include "inc/work_radio.html" with n=4 prefix="up" %}</td></tr>
+                                <tr><td class="num">5</td><td>Основные элементы профессиональной коммуникации</td><td>{% include "inc/work_radio.html" with n=5 prefix="up" %}</td></tr>
+                                <tr><td class="num">6</td><td>Эффективность профессиональной коммуникации</td><td>{% include "inc/work_radio.html" with n=6 prefix="up" %}</td></tr>
+                                <tr><td class="num">7</td><td>Конфликт — его сущность и характеристики</td><td>{% include "inc/work_radio.html" with n=7 prefix="up" %}</td></tr>
+                                <tr><td class="num">8</td><td>Эмоциональное реагирование и саморегуляция</td><td>{% include "inc/work_radio.html" with n=8 prefix="up" %}</td></tr>
+                                <tr><td class="num">9</td><td>Коммуникативная компетентность</td><td>{% include "inc/work_radio.html" with n=9 prefix="up" %}</td></tr>
+                                <tr><td class="num">10</td><td>Деловое общение</td><td>{% include "inc/work_radio.html" with n=10 prefix="up" %}</td></tr>
+                                <tr><td class="num">11</td><td>Культура профессиональных коммуникаций</td><td>{% include "inc/work_radio.html" with n=11 prefix="up" %}</td></tr>
+                            </tbody>
+                        </table>
+
+                        <div class="divider-section"></div>
+                        <div class="section-label">2. Профессиональные компетенции (ПК)</div>
+                        <table class="comp-table">
+                            <thead>
+                                <tr>
+                                    <th>Компетенция</th>
+                                    <th style="min-width:320px">Сформированность</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>ПК 12.1. Техническое сопровождение и восстановление веб-приложений</td><td>{% include "inc/pk_radio.html" with n=1 prefix="up" %}</td></tr>
+                                <tr><td>ПК 12.2. Размещение веб-приложений в сети</td><td>{% include "inc/pk_radio.html" with n=2 prefix="up" %}</td></tr>
+                                <tr><td>ПК 12.3. Резервное копирование ИР и управление доступом</td><td>{% include "inc/pk_radio.html" with n=3 prefix="up" %}</td></tr>
+                                <tr><td>ПК 12.4. Обработка запросов в службе техподдержки</td><td>{% include "inc/pk_radio.html" with n=4 prefix="up" %}</td></tr>
+                                <tr><td>ПК 12.5. Сбор статистики работы веб-приложений</td><td>{% include "inc/pk_radio.html" with n=5 prefix="up" %}</td></tr>
+                                <tr><td>ПК 12.6. Продвижение веб-приложений в сети</td><td>{% include "inc/pk_radio.html" with n=6 prefix="up" %}</td></tr>
+                            </tbody>
+                        </table>
+
+                        <div class="divider-section"></div>
+                        <div class="section-label">3. Общие компетенции (ОК)</div>
+                        <table class="comp-table">
+                            <thead>
+                                <tr>
+                                    <th class="num">ОК</th>
+                                    <th>Наименование</th>
+                                    <th style="min-width:340px">Степень проявления</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="num">01</td><td>Выбирать способы решения задач профессиональной деятельности</td><td>{% include "inc/ok_radio.html" with n=1 prefix="up" %}</td></tr>
+                                <tr><td class="num">02</td><td>Поиск, анализ и интерпретация информации</td><td>{% include "inc/ok_radio.html" with n=2 prefix="up" %}</td></tr>
+                                <tr><td class="num">03</td><td>Профессиональное и личностное развитие</td><td>{% include "inc/ok_radio.html" with n=3 prefix="up" %}</td></tr>
+                                <tr><td class="num">04</td><td>Работа в коллективе и команде</td><td>{% include "inc/ok_radio.html" with n=4 prefix="up" %}</td></tr>
+                                <tr><td class="num">05</td><td>Устная и письменная коммуникация</td><td>{% include "inc/ok_radio.html" with n=5 prefix="up" %}</td></tr>
+                                <tr><td class="num">06</td><td>Гражданско-патриотическая позиция</td><td>{% include "inc/ok_radio.html" with n=6 prefix="up" %}</td></tr>
+                                <tr><td class="num">07</td><td>Сохранение окружающей среды</td><td>{% include "inc/ok_radio.html" with n=7 prefix="up" %}</td></tr>
+                                <tr><td class="num">08</td><td>Физическая культура</td><td>{% include "inc/ok_radio.html" with n=8 prefix="up" %}</td></tr>
+                                <tr><td class="num">09</td><td>Использование ИТ в деятельности</td><td>{% include "inc/ok_radio.html" with n=9 prefix="up" %}</td></tr>
+                                <tr><td class="num">10</td><td>Профессиональная документация</td><td>{% include "inc/ok_radio.html" with n=10 prefix="up" %}</td></tr>
+                                <tr><td class="num">11</td><td>Финансовая грамотность</td><td>{% include "inc/ok_radio.html" with n=11 prefix="up" %}</td></tr>
+                            </tbody>
+                        </table>
+
+                        <div class="divider-section"></div>
+                        <div class="section-label">Результат практики</div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label class="field-label">Результат</label>
+                                <input type="text" name="result" value="Программа практической подготовки выполнена в полном объёме">
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Дата составления</label>
+                                <input type="date" name="document_date">
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary">💾 Сохранить в базу</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             ТАБ 3: Аттестационный лист — Производственная
+        ═══════════════════════════════════════════════ -->
+        <div class="tab-pane" id="tab-attestat-pp">
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title">🏭 Аттестационный лист — Производственная практика</div>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="/create-practice/">
+                        {% csrf_token %}
+                        <input type="hidden" name="practice_type" value="production">
+
+                        <div class="section-label">Данные студента</div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label class="field-label">ФИО студента</label>
+                                <input type="text" name="fio" placeholder="Фамилия Имя Отчество" value="{{ profile.last_name }} {{ profile.first_name }} {{ profile.middle_name }}">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label class="field-label">Специальность</label>
+                                <input type="text" name="speciality" placeholder="Код и наименование специальности">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="field-label">Группа</label>
+                                <input type="text" name="group" placeholder="ИС-21">
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Курс</label>
+                                <select name="course">
+                                    <option value="">—</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Форма обучения</label>
+                                <select name="education_form">
+                                    <option value="">—</option>
+                                    <option value="очная">Очная</option>
+                                    <option value="заочная">Заочная</option>
+                                    <option value="очно-заочная">Очно-заочная</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="divider-section"></div>
+                        <div class="section-label">Период практики</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="field-label">Дата начала</label>
+                                <input type="date" name="start_date">
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Дата окончания</label>
+                                <input type="date" name="end_date">
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Код ПМ</label>
+                                <input type="text" name="module_code" placeholder="ПМ.12">
+                            </div>
+                        </div>
+
+                        <div class="divider-section"></div>
+                        <div class="section-label">Место прохождения практики</div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label class="field-label">Организация</label>
+                                <input type="text" name="organization" placeholder="ООО «Название компании»">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label class="field-label">Адрес организации</label>
+                                <input type="text" name="organization_address" placeholder="г. Город, ул. Улица, д. 1, тел.">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label class="field-label">Руководитель практики (ФИО, должность)</label>
+                                <input type="text" name="supervisor" placeholder="Иванов И.И., должность">
+                            </div>
+                        </div>
+
+                        <div class="divider-section"></div>
+                        <div class="section-label">1. Виды выполненных работ — Качество</div>
+                        <table class="comp-table">
+                            <thead>
+                                <tr><th class="num">№</th><th>Вид работы</th><th style="min-width:280px">Качество выполнения</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="num">1</td><td>Техническое сопровождение и восстановление веб-приложений</td><td>{% include "inc/work_radio.html" with n=1 prefix="pp" %}</td></tr>
+                                <tr><td class="num">2</td><td>Размещение веб-приложения в сети</td><td>{% include "inc/work_radio.html" with n=2 prefix="pp" %}</td></tr>
+                                <tr><td class="num">3</td><td>Резервное копирование ИР и управление доступом</td><td>{% include "inc/work_radio.html" with n=3 prefix="pp" %}</td></tr>
+                                <tr><td class="num">4</td><td>Сбор статистики работы веб-приложений</td><td>{% include "inc/work_radio.html" with n=4 prefix="pp" %}</td></tr>
+                                <tr><td class="num">5</td><td>Основные элементы профессиональной коммуникации</td><td>{% include "inc/work_radio.html" with n=5 prefix="pp" %}</td></tr>
+                                <tr><td class="num">6</td><td>Эффективность профессиональной коммуникации</td><td>{% include "inc/work_radio.html" with n=6 prefix="pp" %}</td></tr>
+                                <tr><td class="num">7</td><td>Конфликт — его сущность и характеристики</td><td>{% include "inc/work_radio.html" with n=7 prefix="pp" %}</td></tr>
+                                <tr><td class="num">8</td><td>Эмоциональное реагирование и саморегуляция</td><td>{% include "inc/work_radio.html" with n=8 prefix="pp" %}</td></tr>
+                                <tr><td class="num">9</td><td>Коммуникативная компетентность</td><td>{% include "inc/work_radio.html" with n=9 prefix="pp" %}</td></tr>
+                                <tr><td class="num">10</td><td>Деловое общение</td><td>{% include "inc/work_radio.html" with n=10 prefix="pp" %}</td></tr>
+                                <tr><td class="num">11</td><td>Культура профессиональных коммуникаций</td><td>{% include "inc/work_radio.html" with n=11 prefix="pp" %}</td></tr>
+                            </tbody>
+                        </table>
+
+                        <div class="divider-section"></div>
+                        <div class="section-label">2. Профессиональные компетенции (ПК)</div>
+                        <table class="comp-table">
+                            <thead><tr><th>Компетенция</th><th style="min-width:320px">Сформированность</th></tr></thead>
+                            <tbody>
+                                <tr><td>ПК 12.1. Техническое сопровождение и восстановление веб-приложений</td><td>{% include "inc/pk_radio.html" with n=1 prefix="pp" %}</td></tr>
+                                <tr><td>ПК 12.2. Размещение веб-приложений в сети</td><td>{% include "inc/pk_radio.html" with n=2 prefix="pp" %}</td></tr>
+                                <tr><td>ПК 12.3. Резервное копирование ИР и управление доступом</td><td>{% include "inc/pk_radio.html" with n=3 prefix="pp" %}</td></tr>
+                                <tr><td>ПК 12.4. Обработка запросов в службе техподдержки</td><td>{% include "inc/pk_radio.html" with n=4 prefix="pp" %}</td></tr>
+                                <tr><td>ПК 12.5. Сбор статистики работы веб-приложений</td><td>{% include "inc/pk_radio.html" with n=5 prefix="pp" %}</td></tr>
+                                <tr><td>ПК 12.6. Продвижение веб-приложений в сети</td><td>{% include "inc/pk_radio.html" with n=6 prefix="pp" %}</td></tr>
+                            </tbody>
+                        </table>
+
+                        <div class="divider-section"></div>
+                        <div class="section-label">3. Общие компетенции (ОК)</div>
+                        <table class="comp-table">
+                            <thead><tr><th class="num">ОК</th><th>Наименование</th><th style="min-width:340px">Степень проявления</th></tr></thead>
+                            <tbody>
+                                <tr><td class="num">01</td><td>Выбирать способы решения задач</td><td>{% include "inc/ok_radio.html" with n=1 prefix="pp" %}</td></tr>
+                                <tr><td class="num">02</td><td>Поиск, анализ и интерпретация информации</td><td>{% include "inc/ok_radio.html" with n=2 prefix="pp" %}</td></tr>
+                                <tr><td class="num">03</td><td>Профессиональное и личностное развитие</td><td>{% include "inc/ok_radio.html" with n=3 prefix="pp" %}</td></tr>
+                                <tr><td class="num">04</td><td>Работа в коллективе и команде</td><td>{% include "inc/ok_radio.html" with n=4 prefix="pp" %}</td></tr>
+                                <tr><td class="num">05</td><td>Устная и письменная коммуникация</td><td>{% include "inc/ok_radio.html" with n=5 prefix="pp" %}</td></tr>
+                                <tr><td class="num">06</td><td>Гражданско-патриотическая позиция</td><td>{% include "inc/ok_radio.html" with n=6 prefix="pp" %}</td></tr>
+                                <tr><td class="num">07</td><td>Сохранение окружающей среды</td><td>{% include "inc/ok_radio.html" with n=7 prefix="pp" %}</td></tr>
+                                <tr><td class="num">08</td><td>Физическая культура</td><td>{% include "inc/ok_radio.html" with n=8 prefix="pp" %}</td></tr>
+                                <tr><td class="num">09</td><td>Использование ИТ</td><td>{% include "inc/ok_radio.html" with n=9 prefix="pp" %}</td></tr>
+                                <tr><td class="num">10</td><td>Профессиональная документация</td><td>{% include "inc/ok_radio.html" with n=10 prefix="pp" %}</td></tr>
+                                <tr><td class="num">11</td><td>Финансовая грамотность</td><td>{% include "inc/ok_radio.html" with n=11 prefix="pp" %}</td></tr>
+                            </tbody>
+                        </table>
+
+                        <div class="divider-section"></div>
+                        <div class="section-label">Результат практики</div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label class="field-label">Результат</label>
+                                <input type="text" name="result" value="Программа практической подготовки выполнена в полном объёме">
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Дата составления</label>
+                                <input type="date" name="document_date">
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary">💾 Сохранить в базу</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             ТАБ 4: Характеристика
+        ═══════════════════════════════════════════════ -->
+        <div class="tab-pane" id="tab-harakt">
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title">📋 Характеристика практиканта</div>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="/create-characteristic/">
+                        {% csrf_token %}
+
+                        <div class="section-label">Данные практиканта</div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label class="field-label">ФИО практиканта</label>
+                                <input type="text" name="fio" placeholder="Фамилия Имя Отчество" value="{{ profile.last_name }} {{ profile.first_name }} {{ profile.middle_name }}">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label class="field-label">Подразделение, должность, место практики</label>
+                                <input type="text" name="library" placeholder="Отдел разработки, стажёр, ООО «Компания»">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label class="field-label">Специальность</label>
+                                <input type="text" name="speciality" placeholder="09.02.07 Информационные системы и программирование">
+                            </div>
+                        </div>
+
+                        <div class="divider-section"></div>
+                        <div class="section-label">Период и посещаемость</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="field-label">Дата начала</label>
+                                <input type="date" name="work_start">
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Дата окончания</label>
+                                <input type="date" name="work_end">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="field-label">Количество выходов (дней)</label>
+                                <input type="number" name="work_days_count" placeholder="20" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Пропущено дней (всего)</label>
+                                <input type="number" name="missed_days" placeholder="0" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="field-label">Из них по неуважительной причине</label>
+                                <input type="number" name="missed_unexcused" placeholder="0" min="0">
+                            </div>
+                        </div>
+
+                        <div class="divider-section"></div>
+                        <div class="section-label">Оценка работы</div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label class="field-label">Качество выполнения работы</label>
+                                <textarea name="work_quality" placeholder="Внимательно и ответственно относился к выполняемой работе. Задания выполнял своевременно и в полном объёме."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="divider-section"></div>
+                        <div class="section-label">Руководитель практики от организации</div>
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label class="field-label">Должность, ФИО</label>
+                                <input type="text" name="supervisor" placeholder="Директор, Иванов Иван Иванович">
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-success">💾 Сохранить характеристику</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             ТАБ 5: Мои документы
+        ═══════════════════════════════════════════════ -->
+        <div class="tab-pane" id="tab-my-docs">
+
+            <!-- Аттестационные листы -->
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title">📝 Аттестационные листы</div>
+                </div>
+                <div class="card-body">
+                    {% if practice_docs %}
+                        <div class="doc-grid">
+                            {% for doc in practice_docs %}
+                                <div class="doc-card">
+                                    {% if doc.practice_type == 'educational' %}
+                                        <div class="doc-badge badge-edu">🎓 Учебная практика</div>
+                                    {% elif doc.practice_type == 'production' %}
+                                        <div class="doc-badge badge-prod">🏭 Производственная</div>
+                                    {% else %}
+                                        <div class="doc-badge badge-prod">📌 Преддипломная</div>
+                                    {% endif %}
+                                    <div class="doc-info">
+                                        <p><strong>{{ doc.fio|default:"—" }}</strong></p>
+                                        <p>Группа: <strong>{{ doc.group|default:"—" }}</strong>, курс <strong>{{ doc.course|default:"—" }}</strong></p>
+                                        <p>Специальность: {{ doc.speciality|truncatechars:50|default:"—" }}</p>
+                                        <p>Создан: {{ doc.created_at|date:"d.m.Y" }}</p>
+                                    </div>
+                                    <div class="doc-actions">
+                                        <a href="/practice/{{ doc.id }}/download/" class="btn btn-success btn-sm">⬇ Скачать</a>
+                                        <a href="/practice/edit/{{ doc.id }}/" class="btn btn-outline btn-sm">✏️ Изменить</a>
+                                        <a href="/practice/delete/{{ doc.id }}/" class="btn btn-danger btn-sm" onclick="return confirm('Удалить документ?')">🗑</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-icon">📭</div>
+                            Аттестационных листов пока нет.<br>Заполните форму на вкладке «Атт. лист — УП» или «Атт. лист — ПП».
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Характеристики -->
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title">📋 Характеристики</div>
+                </div>
+                <div class="card-body">
+                    {% if characteristic_docs %}
+                        <div class="doc-grid">
+                            {% for doc in characteristic_docs %}
+                                <div class="doc-card">
+                                    <div class="doc-badge badge-char">📄 Характеристика</div>
+                                    <div class="doc-info">
+                                        <p><strong>{{ doc.fio|default:"—" }}</strong></p>
+                                        <p>Специальность: {{ doc.speciality|truncatechars:50|default:"—" }}</p>
+                                        <p>Период: {{ doc.work_start|date:"d.m.Y"|default:"—" }} — {{ doc.work_end|date:"d.m.Y"|default:"—" }}</p>
+                                        <p>Создана: {{ doc.created_at|date:"d.m.Y" }}</p>
+                                    </div>
+                                    <div class="doc-actions">
+                                        <a href="/characteristic/{{ doc.id }}/download/" class="btn btn-success btn-sm">⬇ Скачать</a>
+                                        <a href="/characteristic/delete/{{ doc.id }}/" class="btn btn-danger btn-sm" onclick="return confirm('Удалить характеристику?')">🗑</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-icon">📭</div>
+                            Характеристик пока нет.<br>Заполните форму на вкладке «Характеристика».
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /main -->
+
+    <script>
+        function switchTab(name, btn) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + name).classList.add('active');
+        }
+
+        // Автоматически открывать нужный таб если есть hash
+        const hash = window.location.hash.replace('#','');
+        if (hash) {
+            const btn = [...document.querySelectorAll('.tab')].find(t => t.getAttribute('onclick')?.includes(hash));
+            if (btn) btn.click();
+        }
+    </script>
+</body>
+</html>

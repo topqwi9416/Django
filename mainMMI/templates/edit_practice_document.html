@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактировать аттестационный лист — ПрактикаДок</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        :root{--bg:#0d1117;--surface:#161b22;--border:#21262d;--accent:#2f81f7;--accent2:#3fb950;--accent3:#d29922;--text:#e6edf3;--muted:#8b949e;--card:#1c2128;--input:#0d1117}
+        body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+        .header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100}
+        .logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+        .logo-icon{width:32px;height:32px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px}
+        .logo-name{font-size:17px;font-weight:800;letter-spacing:-.4px}
+        .logo-name span{color:var(--accent)}
+        .main{max-width:900px;margin:0 auto;padding:32px 24px}
+        .page-title{font-size:22px;font-weight:800;margin-bottom:6px}
+        .page-sub{color:var(--muted);font-size:13px;margin-bottom:28px}
+        .card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:16px}
+        .card-head{padding:14px 24px;border-bottom:1px solid var(--border)}
+        .card-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+        .card-body{padding:22px 24px}
+        .form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:14px}
+        .form-group{display:flex;flex-direction:column;gap:5px}
+        .form-group.full{grid-column:1/-1}
+        label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.4px;text-transform:uppercase}
+        input[type=text],input[type=date],select{background:var(--input);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Manrope',sans-serif;font-size:14px;padding:9px 12px;outline:none;transition:border-color .15s;width:100%}
+        input:focus,select:focus{border-color:var(--accent)}
+        select option{background:var(--card)}
+        .comp-table{width:100%;border-collapse:collapse;font-size:13px}
+        .comp-table th{background:var(--surface);color:var(--muted);font-weight:600;padding:9px 12px;text-align:left;border:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+        .comp-table td{padding:9px 12px;border:1px solid var(--border);vertical-align:middle}
+        .comp-table tr:nth-child(even) td{background:rgba(255,255,255,.015)}
+        .num{color:var(--muted);text-align:center;width:40px}
+        .rg{display:flex;gap:6px;flex-wrap:wrap}
+        .rc input[type=radio]{display:none}
+        .rc label{padding:4px 10px;border:1px solid var(--border);border-radius:20px;font-size:12px;cursor:pointer;transition:all .15s;color:var(--muted);font-weight:500;letter-spacing:0;text-transform:none}
+        .rc input:checked+label{border-color:var(--accent);background:rgba(47,129,247,.15);color:var(--accent)}
+        .rc.g input:checked+label{border-color:var(--accent2);background:rgba(63,185,80,.15);color:var(--accent2)}
+        .rc.y input:checked+label{border-color:var(--accent3);background:rgba(210,153,34,.15);color:var(--accent3)}
+        .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;font-family:'Manrope',sans-serif;cursor:pointer;border:none;text-decoration:none;transition:all .15s}
+        .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#388bfd}
+        .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}.btn-outline:hover{background:var(--surface)}
+        .btn-group{display:flex;gap:12px;margin-top:20px}
+        .alert{background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.3);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--accent2);margin-bottom:20px}
+    </style>
+</head>
+<body>
+<header class="header">
+    <a href="/" class="logo"><div class="logo-icon">📄</div><div class="logo-name">Практика<span>Док</span></div></a>
+    <a href="/profile/#my-docs" class="btn btn-outline" style="padding:6px 14px;font-size:13px">← Назад</a>
+</header>
+
+<div class="main">
+    {% if messages %}{% for m in messages %}<div class="alert">{{ m }}</div>{% endfor %}{% endif %}
+
+    <div class="page-title">✏️ Редактировать аттестационный лист</div>
+    <p class="page-sub">{{ doc.get_practice_type_display }} — {{ doc.fio }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="practice_type" value="{{ doc.practice_type }}">
+
+        <!-- Студент -->
+        <div class="card">
+            <div class="card-head"><div class="card-title">Данные студента</div></div>
+            <div class="card-body">
+                <div class="form-row"><div class="form-group full"><label>ФИО</label><input type="text" name="fio" value="{{ doc.fio }}"></div></div>
+                <div class="form-row"><div class="form-group full"><label>Специальность</label><input type="text" name="speciality" value="{{ doc.speciality }}"></div></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Группа</label><input type="text" name="group" value="{{ doc.group }}"></div>
+                    <div class="form-group"><label>Курс</label>
+                        <select name="course">
+                            <option value="">—</option>
+                            <option value="1" {% if doc.course == "1" %}selected{% endif %}>1</option>
+                            <option value="2" {% if doc.course == "2" %}selected{% endif %}>2</option>
+                            <option value="3" {% if doc.course == "3" %}selected{% endif %}>3</option>
+                            <option value="4" {% if doc.course == "4" %}selected{% endif %}>4</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Форма обучения</label>
+                        <select name="education_form">
+                            <option value="">—</option>
+                            <option value="очная" {% if doc.education_form == "очная" %}selected{% endif %}>Очная</option>
+                            <option value="заочная" {% if doc.education_form == "заочная" %}selected{% endif %}>Заочная</option>
+                            <option value="очно-заочная" {% if doc.education_form == "очно-заочная" %}selected{% endif %}>Очно-заочная</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Место и период -->
+        <div class="card">
+            <div class="card-head"><div class="card-title">Период и место практики</div></div>
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group"><label>Дата начала</label><input type="date" name="start_date" value="{{ doc.start_date|date:'Y-m-d' }}"></div>
+                    <div class="form-group"><label>Дата окончания</label><input type="date" name="end_date" value="{{ doc.end_date|date:'Y-m-d' }}"></div>
+                    <div class="form-group"><label>Код ПМ</label><input type="text" name="module_code" value="{{ doc.module_code }}"></div>
+                </div>
+                <div class="form-row"><div class="form-group full"><label>Организация</label><input type="text" name="organization" value="{{ doc.organization }}"></div></div>
+                <div class="form-row"><div class="form-group full"><label>Адрес организации</label><input type="text" name="organization_address" value="{{ doc.organization_address }}"></div></div>
+                <div class="form-row"><div class="form-group full"><label>Руководитель практики (ФИО, должность)</label><input type="text" name="supervisor" value="{{ doc.supervisor }}"></div></div>
+            </div>
+        </div>
+
+        <!-- Виды работ -->
+        <div class="card">
+            <div class="card-head"><div class="card-title">1. Виды выполненных работ — Качество</div></div>
+            <div class="card-body">
+                <table class="comp-table">
+                    <thead><tr><th class="num">№</th><th>Вид работы</th><th style="min-width:260px">Качество выполнения</th></tr></thead>
+                    <tbody>
+                        {% for row in work_rows %}
+                        <tr>
+                            <td class="num">{{ row.n }}</td>
+                            <td>{{ row.label }}</td>
+                            <td><div class="rg">
+                                <div class="rc g"><input type="radio" name="work_{{ row.n }}_quality" id="wq{{ row.n }}h" value="high" {% if row.val == 'high' %}checked{% endif %}><label for="wq{{ row.n }}h">Высокое</label></div>
+                                <div class="rc y"><input type="radio" name="work_{{ row.n }}_quality" id="wq{{ row.n }}m" value="medium" {% if row.val == 'medium' %}checked{% endif %}><label for="wq{{ row.n }}m">Среднее</label></div>
+                                <div class="rc"><input type="radio" name="work_{{ row.n }}_quality" id="wq{{ row.n }}l" value="low" {% if row.val == 'low' %}checked{% endif %}><label for="wq{{ row.n }}l">Низкое</label></div>
+                            </div></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ПК -->
+        <div class="card">
+            <div class="card-head"><div class="card-title">2. Профессиональные компетенции (ПК)</div></div>
+            <div class="card-body">
+                <table class="comp-table">
+                    <thead><tr><th>Компетенция</th><th style="min-width:300px">Сформированность</th></tr></thead>
+                    <tbody>
+                        {% for row in pk_rows %}
+                        <tr>
+                            <td>{{ row.label }}</td>
+                            <td><div class="rg">
+                                <div class="rc g"><input type="radio" name="pk_{{ row.n }}_level" id="pk{{ row.n }}f" value="full" {% if row.val == 'full' %}checked{% endif %}><label for="pk{{ row.n }}f">Полностью</label></div>
+                                <div class="rc y"><input type="radio" name="pk_{{ row.n }}_level" id="pk{{ row.n }}p" value="partial" {% if row.val == 'partial' %}checked{% endif %}><label for="pk{{ row.n }}p">Частично</label></div>
+                                <div class="rc"><input type="radio" name="pk_{{ row.n }}_level" id="pk{{ row.n }}n" value="none" {% if row.val == 'none' %}checked{% endif %}><label for="pk{{ row.n }}n">Не сформ.</label></div>
+                            </div></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ОК -->
+        <div class="card">
+            <div class="card-head"><div class="card-title">3. Общие компетенции (ОК)</div></div>
+            <div class="card-body">
+                <table class="comp-table">
+                    <thead><tr><th class="num">ОК</th><th>Наименование</th><th style="min-width:320px">Степень проявления</th></tr></thead>
+                    <tbody>
+                        {% for row in ok_rows %}
+                        <tr>
+                            <td class="num">{{ row.code }}</td>
+                            <td>{{ row.label }}</td>
+                            <td><div class="rg">
+                                <div class="rc g"><input type="radio" name="ok_{{ row.n }}_level" id="ok{{ row.n }}r" value="regular" {% if row.val == 'regular' %}checked{% endif %}><label for="ok{{ row.n }}r">Регулярно</label></div>
+                                <div class="rc y"><input type="radio" name="ok_{{ row.n }}_level" id="ok{{ row.n }}e" value="episodic" {% if row.val == 'episodic' %}checked{% endif %}><label for="ok{{ row.n }}e">Эпизодически</label></div>
+                                <div class="rc"><input type="radio" name="ok_{{ row.n }}_level" id="ok{{ row.n }}n" value="none" {% if row.val == 'none' %}checked{% endif %}><label for="ok{{ row.n }}n">Не проявлял</label></div>
+                            </div></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Результат -->
+        <div class="card">
+            <div class="card-head"><div class="card-title">Результат</div></div>
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group full"><label>Результат практики</label><input type="text" name="result" value="{{ doc.result }}"></div>
+                    <div class="form-group"><label>Дата составления</label><input type="date" name="document_date" value="{{ doc.document_date|date:'Y-m-d' }}"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary">💾 Сохранить изменения</button>
+            <a href="/profile/#my-docs" class="btn btn-outline">Отмена</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

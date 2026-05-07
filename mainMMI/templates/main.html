@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ПрактикаДок</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        :root{--bg:#0d1117;--surface:#161b22;--border:#21262d;--accent:#2f81f7;--accent2:#3fb950;--text:#e6edf3;--muted:#8b949e;--card:#1c2128}
+        body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;overflow:hidden;position:relative}
+        body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(47,129,247,.08) 1px,transparent 0);background-size:32px 32px;pointer-events:none}
+        .glow{position:fixed;border-radius:50%;filter:blur(120px);opacity:.12;pointer-events:none}
+        .glow-1{width:500px;height:500px;background:#2f81f7;top:-100px;left:-100px}
+        .glow-2{width:400px;height:400px;background:#3fb950;bottom:-100px;right:-50px}
+        .wrapper{position:relative;z-index:1;width:100%;max-width:460px;padding:24px}
+        .logo{display:flex;align-items:center;gap:12px;margin-bottom:36px;justify-content:center}
+        .logo-icon{width:44px;height:44px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px}
+        .logo-text{font-size:22px;font-weight:800;letter-spacing:-.5px}
+        .logo-text span{color:var(--accent)}
+        .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:36px}
+        h1{font-size:26px;font-weight:800;margin-bottom:8px;letter-spacing:-.5px}
+        .subtitle{color:var(--muted);font-size:14px;margin-bottom:32px;line-height:1.6}
+        .btn{display:block;width:100%;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:600;font-family:'Manrope',sans-serif;text-align:center;text-decoration:none;cursor:pointer;border:none;transition:all .15s;margin-bottom:12px}
+        .btn-primary{background:var(--accent);color:#fff}
+        .btn-primary:hover{background:#388bfd;transform:translateY(-1px)}
+        .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+        .btn-outline:hover{background:var(--surface);border-color:var(--accent)}
+        .divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--muted);font-size:13px}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+        .features{margin-top:28px;display:flex;flex-direction:column;gap:10px}
+        .feature{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+        .feature-dot{width:6px;height:6px;border-radius:50%;background:var(--accent2);flex-shrink:0}
+    </style>
+</head>
+<body>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    <div class="wrapper">
+        <div class="logo">
+            <div class="logo-icon">📄</div>
+            <div class="logo-text">Практика<span>Док</span></div>
+        </div>
+        <div class="card">
+            <h1>Документы практики</h1>
+            <p class="subtitle">Заполняйте аттестационные листы и характеристики онлайн — скачивайте готовые .docx файлы одним кликом.</p>
+            <a href="/register/" class="btn btn-primary">Создать аккаунт</a>
+            <div class="divider">или</div>
+            <a href="/login/" class="btn btn-outline">Войти в систему</a>
+            <div class="features">
+                <div class="feature"><div class="feature-dot"></div>Аттестационный лист — учебная практика</div>
+                <div class="feature"><div class="feature-dot"></div>Аттестационный лист — производственная практика</div>
+                <div class="feature"><div class="feature-dot"></div>Характеристика практиканта</div>
+                <div class="feature"><div class="feature-dot"></div>Скачивание готовых .docx файлов</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
