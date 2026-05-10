@@ -253,7 +253,26 @@ def download_harakteristika(request, doc_id):
     response['Content-Disposition'] = f"attachment; filename*=UTF-8''{urllib.parse.quote(fname)}"
     return response
 
+@login_required
+def edit_characteristic_document(request, doc_id):
+    doc = get_object_or_404(CharacteristicDocument, id=doc_id, user=request.user)
 
+    if request.method == 'POST':
+        doc.fio              = request.POST.get('fio', '')
+        doc.library          = request.POST.get('library', '')
+        doc.work_start       = request.POST.get('work_start') or None
+        doc.work_end         = request.POST.get('work_end') or None
+        doc.work_days_count  = request.POST.get('work_days_count') or None
+        doc.missed_days      = request.POST.get('missed_days') or None
+        doc.missed_unexcused = request.POST.get('missed_unexcused') or None
+        doc.speciality       = request.POST.get('speciality', '')
+        doc.work_quality     = request.POST.get('work_quality', '')
+        doc.supervisor       = request.POST.get('supervisor', '')
+        doc.save()
+        messages.success(request, 'Характеристика обновлена!')
+        return redirect('/profile/#my-docs')
+
+    return render(request, 'edit_characteristic_document.html', {'doc': doc})
 
 @login_required
 def delete_characteristic_document(request, doc_id):

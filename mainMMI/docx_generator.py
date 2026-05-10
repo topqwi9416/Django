@@ -22,20 +22,29 @@ def _get_template_path(template_type):
 
 
 def _replace_in_paragraph(para, replacements):
-    full_text = para.text
-    if '{{' not in full_text:
+    if not para.runs:
         return
+    
+    # Склеиваем все runs
+    full_text = ''.join(run.text for run in para.runs)
+    
+    if not any(('{{' + key + '}}') in full_text for key in replacements):
+        return
+
     new_text = full_text
     for key, value in replacements.items():
         new_text = new_text.replace('{{' + key + '}}', str(value) if value is not None else '')
+
     if new_text == full_text:
         return
-    if para.runs:
-        para.runs[0].text = new_text
-        for run in para.runs[1:]:
-            run.text = ''
-    else:
-        para.add_run(new_text)
+
+    # Очищаем ВСЕ runs
+    for run in para.runs:
+        run.text = ''
+    
+    # Весь новый текст в первый run
+    para.runs[0].text = new_text
+    
 
 
 def _replace_in_doc(doc, replacements):
@@ -61,6 +70,9 @@ def generate_harakteristika(char_doc):
     path = _get_template_path('harakteristika')
     doc  = Document(path)
 
+    print(f"DEBUG work_start: {char_doc.work_start}")
+    print(f"DEBUG work_end: {char_doc.work_end}")
+
     replacements = {
         'fio':               char_doc.fio or '',
         'library':           char_doc.library or '',
@@ -74,18 +86,16 @@ def generate_harakteristika(char_doc):
 
     if char_doc.work_start:
         replacements.update({
-            'day_begin':   char_doc.work_start.day,
-            'month_begin': _month_name(char_doc.work_start.month),
-            'year_begin':  char_doc.work_start.year,
+            'day_begin':   str(char_doc.work_start.day),
+            'month_begin': _month_name(char_doc.work_start.month) + ' ',
+            'year_begin':  str(char_doc.work_start.year),
         })
-    else:
-        replacements.update({'day_begin': '', 'month_begin': '', 'year_begin': ''})
 
     if char_doc.work_end:
         replacements.update({
-            'day_finish':   char_doc.work_end.day,
+            'day_finish':   str(char_doc.work_end.day),
             'month_finish': _month_name(char_doc.work_end.month),
-            'year_finish':  char_doc.work_end.year,
+            'year_finish':  str(char_doc.work_end.year),
         })
     else:
         replacements.update({'day_finish': '', 'month_finish': '', 'year_finish': ''})
@@ -128,26 +138,30 @@ def generate_attestat(practice_doc):
         'mesto': practice_doc.organization or '',
         'adress':practice_doc.organization_address or '',
         'ruka':  practice_doc.supervisor or '',
-        'da':    '+',
+        'da':    '',  # очищаем все {{da}} — плюсы ставим вручную ниже
     }
     _replace_in_doc(doc, replacements)
 
     # Заполняем таблицы плюсами
-    quality_col   = {'high': 2, 'medium': 3, 'low': 4}
+    quality_col    = {'high': 2, 'medium': 3, 'low': 4}
     competence_col = {'full': 1, 'partial': 2, 'none': 3}
-    manifest_col  = {'regular': 2, 'episodic': 3, 'none': 4}
+    manifest_col   = {'regular': 2, 'episodic': 3, 'none': 4}
 
-    work_q  = [getattr(practice_doc, f'work_{i}_quality', '') for i in range(1, 12)]
-    pk_lvl  = [getattr(practice_doc, f'pk_{i}_level',    '') for i in range(1, 7)]
-    ok_lvl  = [getattr(practice_doc, f'ok_{i}_level',    '') for i in range(1, 12)]
+    work_q = [getattr(practice_doc, f'work_{i}_quality', '') for i in range(1, 12)]
+    pk_lvl = [getattr(practice_doc, f'pk_{i}_level',    '') for i in range(1, 7)]
+    ok_lvl = [getattr(practice_doc, f'ok_{i}_level',    '') for i in range(1, 12)]
 
     tables = doc.tables
 
     def _set_plus(table, row_idx, col_idx):
         try:
             cell = table.rows[row_idx].cells[col_idx]
-            if not cell.text.strip():
-                cell.paragraphs[0].add_run('+')
+            # Очищаем ячейку полностью
+            for para in cell.paragraphs:
+                for run in para.runs:
+                    run.text = ''
+            # Ставим плюс
+            cell.paragraphs[0].add_run('+')
         except IndexError:
             pass
 

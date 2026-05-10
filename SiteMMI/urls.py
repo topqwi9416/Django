@@ -3,6 +3,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from mainMMI.views import *
+from mainMMI.views import edit_characteristic_document
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -22,5 +23,6 @@ urlpatterns = [
 
     path('practice/<int:doc_id>/download/', download_attestat, name='download_attestat'),
     path('characteristic/<int:doc_id>/download/', download_harakteristika, name='download_harakteristika'),
+    path('characteristic/edit/<int:doc_id>/', edit_characteristic_document, name='edit_characteristic'),
     path('characteristic/delete/<int:doc_id>/', delete_characteristic_document, name='delete_characteristic'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
